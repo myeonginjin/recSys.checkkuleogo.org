@@ -28,3 +28,7 @@ app = FastAPI()
 @app.get("/")
 async def read_root():
     return {"message": "Hello, World!"}
+
+#안녕 맺북유저
+#화이팅 꾸러기들 팀장님!!
+#굿굿
