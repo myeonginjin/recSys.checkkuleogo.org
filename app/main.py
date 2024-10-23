@@ -19,24 +19,22 @@ def get_db():
         db.close()
 
 
-@app.get("/")
-async def read_root():
+import json
+import os
 
-    # 테이블 생성 (만약 아직 생성되지 않았다면)
-    Base.metadata.create_all(engine)
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
-    # 데이터베이스에 있는 테이블 확인
-    inspector = inspect(engine)  # 수정된 부분
-    tables = inspector.get_table_names()
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-    print("Tables in the database:", tables)
+SECRET_FILE = os.path.join(BASE_DIR, "secrets.json")
+secrets = json.loads(open(SECRET_FILE).read())
+db = secrets["db"]
 
-    # Book 모델을 이용한 간단한 SELECT 쿼리
-    db = SessionLocal()
-    books = db.query(Book).all()
+SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{db.get('user')}:{db.get('password')}@{db.get('host')}:{db.get('port')}/{db.get('database')}?charset=utf8"
 
-    # 데이터 출력
-    for book in books:
-        print(f"Title: {book.book_title}, Author: {book.book_author}")
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-    return {"message": "Hello, World!"}
+Base = declarative_base()
