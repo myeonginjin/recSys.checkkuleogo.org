@@ -157,3 +157,7 @@ zope.interface==5.5.2
 # CS 유사도 추천 시스템
 sqlalchemy==2.0.0
 numpy==1.24.0
+
+# 스케줄러
+APScheduler
+apscheduler
