@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 from sqlalchemy.orm import Session
-from app.config.database import SessionLocal
-from app.services.cs_rec_sys_service import recommend_books
+from config.database import SessionLocal
+from services.cs_rec_sys_service import recommend_books
 
 
 def start_scheduler():

@@ -11,6 +11,7 @@ class Book(Base):
     __tablename__ = "book"
 
     book_idx = Column(BIGINT, primary_key=True, autoincrement=True)
+    book_mbti_id = Column(BIGINT, nullable=True)
     book_title = Column(TEXT, nullable=False)
     book_author = Column(TEXT, nullable=False)
     book_publisher = Column(TEXT, nullable=False)
@@ -26,9 +27,9 @@ class Book(Base):
 class BookMBTI(Base):
     __tablename__ = "book_mbti"
 
-    book_mbti_idx = Column(BIGINT, primary_key=True, autoincrement=True)
+    book_mbti_idx = Column(BIGINT,  ForeignKey("book.book_mbti_id"), primary_key=True, autoincrement=True)
     book_idx = Column(
-        BIGINT, ForeignKey("book.book_idx"), nullable=False
+        BIGINT, nullable=False
     )  # ForeignKey 타입 수정
     mbti_e = Column(Integer)
     mbti_s = Column(Integer)

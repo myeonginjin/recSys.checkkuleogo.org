@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 import numpy as np
-from app.models.schemas import Book, Child, Recommend
+from models.schemas import Book, Child, Recommend
 
 
 def calculate_cosine_similarity(child_vector, book_vector):
@@ -29,11 +29,11 @@ def recommend_books(session: Session):
         child_mbti = get_child_mbti_vector(child)  # 아이의 MBTI를 벡터로 변환하는 함수
         recommendations = []
 
-        print("\n\n 2 : " + child + " \n\n")
+        print("\n\n 2 : " + child.child_name + " \n\n")
 
         for book in books:
 
-            print("3 : " + book)
+            print("3 : " + book.book_title)
 
             book_mbti = get_book_mbti_vector(book)  # 책의 MBTI를 벡터로 변환하는 함수
             similarity = calculate_cosine_similarity(child_mbti, book_mbti)
@@ -46,19 +46,22 @@ def recommend_books(session: Session):
 
         # 추천 결과를 recommend 테이블에 저장
         for book, _ in top_books:
-            session.add(Recommend(book_idx=book.idx, child_idx=child.idx))
-
+            session.add(Recommend(book_idx=book.book_idx, child_idx=child.child_idx))
     session.commit()
 
 
 def get_child_mbti_vector(child):
     """아이의 MBTI를 벡터로 변환하는 로직"""
     # 예시: [mbti_e, mbti_s, mbti_t, mbti_j] 형태로 반환
-    child = child.childMBTI
+    if child.childMBTI is None:
+        print(f"{child.child_name}의 MBTI 정보가 없습니다.")
+        return [0, 0, 0, 0]  # 기본값 반환
+
+    child_mbti = child.childMBTI
 
     print("\n\n>>> " + child.child_name + " <<<<\n\n")
 
-    return [child.mbti_e, child.mbti_s, child.mbti_t, child.mbti_j]
+    return [child_mbti.mbti_e, child_mbti.mbti_s, child_mbti.mbti_t, child_mbti.mbti_j]
 
 
 def get_book_mbti_vector(book):
