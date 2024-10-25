@@ -1,4 +1,4 @@
-from sqlalchemy import Column, TEXT, BIGINT, TIMESTAMP
+from sqlalchemy import Column, TEXT, BIGINT, TIMESTAMP, DOUBLE
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
 from sqlalchemy import Column, Integer, String, ForeignKey
@@ -22,6 +22,22 @@ class Book(Base):
     updated_at = Column(
         TIMESTAMP, server_default=func.now(), onupdate=func.now(), nullable=False
     )
+
+class BookLike(Base):
+    __tablename__ = 'book_like'
+    
+    like_idx = Column(BIGINT, primary_key=True, autoincrement=True)
+    is_like = Column(Integer, nullable=True)
+    book_idx = Column(BIGINT, ForeignKey('book.book_idx'), nullable=True, index=True)
+    child_idx = Column(BIGINT, ForeignKey('child.child_idx'), nullable=True)
+    created_at = Column(TIMESTAMP, server_default=func.now(), nullable=False)
+    updated_at = Column(
+        TIMESTAMP, server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+
+    # Define relationships if needed
+    book = relationship('Book')
+    child = relationship('Child')
 
 
 class BookMBTI(Base):

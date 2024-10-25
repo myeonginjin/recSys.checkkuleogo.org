@@ -154,6 +154,9 @@ wrapt==1.15.0
 zope.event==4.6
 zope.interface==5.5.2
 
+#피벗테이블 및 데이터 처리
+pandas==2.2.3
+
 # CS 유사도 추천 시스템
 sqlalchemy==2.0.0
 numpy==1.24.0
