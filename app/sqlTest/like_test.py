@@ -13,17 +13,17 @@ db_connection = mysql.connector.connect(
 cursor = db_connection.cursor()
 
 # 사용자 수 설정
-num_users = 30  # 사용자 수
-num_books = 40  # 총 책 수 (31~40)
+num_users = 50  # 사용자 수
+num_books = 30  # 총 책 수 (21~30)
 
 # 가상의 장르 데이터 (예시)
 genres = {
-    'Fantasy': range(31, 34),  # 31, 32, 33
-    'Science Fiction': range(34, 38),  # 34, 35, 36, 37
-    'Romance': range(38, 41)  # 38, 39, 40
+    'Fantasy': range(21, 24),  
+    'Science Fiction': range(24, 28),  
+    'Romance': range(238, 31)  
 }
 
-# 사용자 패턴 설정 (30명의 사용자 프로필을 무작위로 생성)
+# 사용자 패턴 설정
 user_profiles = {
     i: np.random.choice(['Fantasy', 'Science Fiction', 'Romance'], size=np.random.randint(1, 4), replace=False).tolist()
     for i in range(1, num_users + 1)
@@ -31,7 +31,7 @@ user_profiles = {
 
 # 사용자-책 피드백 데이터 생성
 likes_data = []
-for user_id in range(1, num_users + 1):
+for user_id in range(1 , num_users + 1):
     preferred_genres = user_profiles[user_id]  # 사용자 프로필에 따라 선호 장르 선택
     liked_books = []
 
@@ -43,7 +43,7 @@ for user_id in range(1, num_users + 1):
             liked_books.extend(np.random.choice(book_ids, size=num_to_choose, replace=False))
 
     # 싫어요 책 수 결정 (무작위로 선택)
-    disliked_books = np.random.choice(range(31, num_books + 1), size=np.random.randint(0, 3), replace=False)
+    disliked_books = np.random.choice(range(21, num_books + 1), size=np.random.randint(0, 3), replace=False)
 
     # 좋아요 데이터 추가
     for book_id in liked_books:
@@ -51,7 +51,7 @@ for user_id in range(1, num_users + 1):
 
     # 싫어요 데이터 추가
     for book_id in disliked_books:
-        likes_data.append((user_id, book_id, -1))  # 싫어요는 -1
+        likes_data.append((user_id, book_id, 0))  # 싫어요는 0
 
 # 데이터프레임으로 변환
 likes_df = pd.DataFrame(likes_data, columns=['user_id', 'book_id', 'is_like'])

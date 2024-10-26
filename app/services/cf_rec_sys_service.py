@@ -7,7 +7,7 @@ import numpy as np
 
 def get_user_item_matrix(likes_df: pd.DataFrame) -> pd.DataFrame:
     """사용자-아이템 행렬을 생성하는 함수"""
-    return likes_df.pivot_table(index='user_idx', columns='book_idx', values='is_like', fill_value=0)
+    return likes_df.pivot_table(index='user_idx', columns='book_idx', values='is_like', fill_value=-1)
 
 
 def calculate_cosine_similarity(user_item_matrix: pd.DataFrame) -> pd.DataFrame:
@@ -29,6 +29,7 @@ def generate_recommendations(user_item_matrix: pd.DataFrame, user_similarities_d
     for user_id in user_item_matrix.index:
         # 현재 사용자와 유사한 사용자 찾기 (상위 5명)
         similar_users = user_similarities_df.loc[user_id].nlargest(6).index[1:]  # 자기 자신 제외
+ 
         # 유사한 사용자가 없을 경우 건너뛰기
         if len(similar_users) == 0:
             continue
@@ -38,7 +39,7 @@ def generate_recommendations(user_item_matrix: pd.DataFrame, user_similarities_d
         # 유사한 사용자의 좋아요와 싫어요를 기반으로 가중 점수 계산
         for similar_user in similar_users:
             liked_books = user_item_matrix.loc[similar_user][user_item_matrix.loc[similar_user] == 1].index
-            disliked_books = user_item_matrix.loc[similar_user][user_item_matrix.loc[similar_user] == -1].index
+            disliked_books = user_item_matrix.loc[similar_user][user_item_matrix.loc[similar_user] == 0].index
             
             # user_item_matrix의 유효한 열(책 인덱스)만 사용
             liked_books_valid = liked_books[liked_books.isin(user_item_matrix.columns)]
@@ -55,15 +56,15 @@ def generate_recommendations(user_item_matrix: pd.DataFrame, user_similarities_d
                 for book in disliked_books_valid:
                     book_index = user_item_matrix.columns.get_loc(book)
                     scores[user_item_matrix.index.get_loc(user_id), book_index] -= sim_scores[similar_user]
+        
+
 
     # 각 사용자의 책 추천 목록 생성
     for user_id in user_item_matrix.index:
         user_books = user_item_matrix.loc[user_id]  # 사용자가 이미 평가한 책
-        
         # 추천 점수에서 사용자가 평가하지 않은 책만 필터링하고 상위 5개 추천
         recommended_books = pd.Series(scores[user_item_matrix.index.get_loc(user_id)], index=user_item_matrix.columns)
-        recommended_books = recommended_books[user_books == 0].nlargest(5)
-        
+        recommended_books = recommended_books[user_books == -1].nlargest(5)
         recommendations[user_id] = recommended_books.index.tolist()
 
     return recommendations
@@ -80,11 +81,9 @@ def run_recommendation(db: Session) -> None:
         likes_df = pd.DataFrame(likes_data, columns=['book_idx', 'user_idx', 'is_like'])
 
 
-
         
         user_item_matrix = get_user_item_matrix(likes_df)
         user_similarities_df = calculate_cosine_similarity(user_item_matrix)
-
 
         recommendations = generate_recommendations(user_item_matrix, user_similarities_df)
 
