@@ -4,7 +4,7 @@ import numpy as np
 from models.schemas import Book, Child, Recommend
 import time
 
-'''
+
 #피벗 적용
 def calculate_cosine_similarity_matrix(child_matrix, book_matrix):
     """모든 아이와 책의 코사인 유사도를 매트릭스로 계산하는 함수"""
@@ -40,9 +40,12 @@ def cs_recommendation(session: Session):
         # 추천 결과를 저장
         recommended_books = []
         for book_index in top_book_indices:
-            recommended_books.append(books[book_index].book_idx)
+            book_id = books[book_index].book_idx
+            score = similarity_matrix[i][book_index]
+            recommended_books.append((book_id, score))
 
         recommendations[child.child_idx] = recommended_books
+
     return recommendations
 
 '''
@@ -80,7 +83,7 @@ def cs_recommendation(session: Session):
         recommendations[child.child_idx] = [book_id for book_id, _ in top_books]
 
     return recommendations  # 추천 결과 반환
-    
+  '''  
 def get_child_mbti_vector(child):
     """아이의 MBTI를 벡터로 변환하는 로직"""
     if child.childMBTI is None:

@@ -40,11 +40,11 @@ def generate_recommendations(user_item_matrix: pd.DataFrame, user_similarities_d
         for similar_user in similar_users:
             liked_books = user_item_matrix.loc[similar_user][user_item_matrix.loc[similar_user] == 1].index
             disliked_books = user_item_matrix.loc[similar_user][user_item_matrix.loc[similar_user] == 0].index
-            
+
             # user_item_matrix의 유효한 열(책 인덱스)만 사용
             liked_books_valid = liked_books[liked_books.isin(user_item_matrix.columns)]
             disliked_books_valid = disliked_books[disliked_books.isin(user_item_matrix.columns)]
-            
+
             # 유효한 liked_books가 있을 경우 점수 계산
             if not liked_books_valid.empty:
                 for book in liked_books_valid:
@@ -56,8 +56,6 @@ def generate_recommendations(user_item_matrix: pd.DataFrame, user_similarities_d
                 for book in disliked_books_valid:
                     book_index = user_item_matrix.columns.get_loc(book)
                     scores[user_item_matrix.index.get_loc(user_id), book_index] -= sim_scores[similar_user]
-        
-
 
     # 각 사용자의 책 추천 목록 생성
     for user_id in user_item_matrix.index:
@@ -65,9 +63,12 @@ def generate_recommendations(user_item_matrix: pd.DataFrame, user_similarities_d
         # 추천 점수에서 사용자가 평가하지 않은 책만 필터링하고 상위 50개 추천
         recommended_books = pd.Series(scores[user_item_matrix.index.get_loc(user_id)], index=user_item_matrix.columns)
         recommended_books = recommended_books[user_books == -1].nlargest(50)
-        recommendations[user_id] = recommended_books.index.tolist()
+        
+        # 추천 책과 점수를 튜플로 묶어서 저장
+        recommendations[user_id] = [(book, recommended_books[book]) for book in recommended_books.index]
 
     return recommendations
+
 
 
 
@@ -93,3 +94,4 @@ def cf_recommendation(db: Session) -> None:
         print(f"추천 시스템 실행 중 오류가 발생했습니다: {e}")
         print(f"오류의 타입: {type(e).__name__}")  # 예외의 타입 출력
         return {}
+    
