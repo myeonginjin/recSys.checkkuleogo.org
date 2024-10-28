@@ -4,7 +4,8 @@ import numpy as np
 from models.schemas import Book, Child, Recommend
 import time
 
-
+'''
+#피벗 적용
 def calculate_cosine_similarity_matrix(child_matrix, book_matrix):
     """모든 아이와 책의 코사인 유사도를 매트릭스로 계산하는 함수"""
     book_norms = np.linalg.norm(book_matrix, axis=1)
@@ -17,9 +18,7 @@ def calculate_cosine_similarity_matrix(child_matrix, book_matrix):
     return np.nan_to_num(similarity_matrix)
 
 
-def recommend_books(session: Session):
-    start_time = time.time()
-    cnt = 0  # 생성된 추천 도서 개수
+def cs_recommendation(session: Session):
 
     # 모든 아이와 책 데이터를 가져오기
     books = session.execute(select(Book)).scalars().all()
@@ -32,34 +31,56 @@ def recommend_books(session: Session):
     # 모든 아이와 책 간의 유사도 매트릭스 계산
     similarity_matrix = calculate_cosine_similarity_matrix(child_vectors, book_vectors)
 
-    recommendations_to_add = []
+    recommendations = {}
 
     for i, child in enumerate(children):
-        # 유사도 기준으로 상위 10개의 책 인덱스 추출
-        top_book_indices = np.argsort(-similarity_matrix[i])[:10]
+        # 유사도 기준으로 상위 50개의 책 인덱스 추출
+        top_book_indices = np.argsort(-similarity_matrix[i])[:50]
 
         # 추천 결과를 저장
+        recommended_books = []
         for book_index in top_book_indices:
-            cnt += 1
-            elapsed_time = time.time() - start_time  # 경과 시간 계산
-            print(
-                f"현재까지 생성된 추천 책 개수 : {cnt}    책 idx : {book_index}    경과 시간: {elapsed_time:.2f} 초"
-            )
-            recommendations_to_add.append(
-                Recommend(
-                    book_idx=books[book_index].book_idx, child_idx=child.child_idx
-                )
-            )
+            recommended_books.append(books[book_index].book_idx)
 
-    # 모든 추천 결과를 일괄 커밋
-    session.bulk_save_objects(recommendations_to_add)
-    session.commit()  # 최종 커밋
+        recommendations[child.child_idx] = recommended_books
+    return recommendations
 
-    end_time = time.time()
-    total_time = end_time - start_time
-    print(f"추천 목록 생성 및 저장에 걸린 총 시간: {total_time:.2f} 초")
+'''
+
+def calculate_cosine_similarity(child_vector, book_vector):
+    """코사인 유사도를 계산하는 함수"""
+    if np.linalg.norm(child_vector) == 0 or np.linalg.norm(book_vector) == 0:
+        return 0.0
+    return np.dot(child_vector, book_vector) / (
+        np.linalg.norm(child_vector) * np.linalg.norm(book_vector)
+    )
 
 
+def cs_recommendation(session: Session):
+
+    books = session.execute(select(Book)).scalars().all()
+    children = session.execute(select(Child)).scalars().all()
+
+    recommendations = {}  # 아이별 추천 결과를 저장할 딕셔너리
+
+    for child in children:
+        child_mbti = get_child_mbti_vector(child)  # 아이의 MBTI를 벡터로 변환하는 함수
+        child_recommendations = []  # 해당 아이에 대한 추천 리스트
+
+        for book in books:
+            book_mbti = get_book_mbti_vector(book)  # 책의 MBTI를 벡터로 변환하는 함수
+            similarity = calculate_cosine_similarity(child_mbti, book_mbti)
+            child_recommendations.append((book.book_idx, similarity))
+
+        # 유사도 기준으로 정렬하고 상위 50개의 책을 추천
+        child_recommendations.sort(key=lambda x: x[1], reverse=True)
+        top_books = child_recommendations[:50]
+
+        # 추천 결과를 딕셔너리에 저장
+        recommendations[child.child_idx] = [book_id for book_id, _ in top_books]
+
+    return recommendations  # 추천 결과 반환
+    
 def get_child_mbti_vector(child):
     """아이의 MBTI를 벡터로 변환하는 로직"""
     if child.childMBTI is None:
