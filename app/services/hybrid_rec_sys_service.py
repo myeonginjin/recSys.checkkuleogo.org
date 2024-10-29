@@ -1,5 +1,6 @@
 from collections import defaultdict
 import time
+from collections import defaultdict
 from requests import Session
 from models.schemas import Book, Recommend, BookLike, Child
 from services.cf_rec_sys_service import cf_recommendation
@@ -49,15 +50,16 @@ def hybrid_recommendation(db: Session, top_n: int = 30) -> None:
         user_count = get_total_user_count(db)
         
         # 각 추천 시스템에서 추천 결과 생성
-        recommendations_1 = cf_recommendation(db)
-        recommendations_2 = cs_recommendation(db)
+        recommendations_1 = cf_recommendation(db)  # {user_id: [(book_id, cf_score), ...]}
+        recommendations_2 = cs_recommendation(db)  # {user_id: [(book_id, cs_score), ...]}
 
         hybrid_recommendations = {}
-        
+
         # 모든 사용자 ID 가져오기
         all_users = set(recommendations_1.keys()).union(set(recommendations_2.keys()))
 
         for user in all_users:
+
             user_likes = get_user_likes(db, user)
             cf_weight, cs_weight = calculate_dynamic_weight(user_likes, user_count)  # 동적 가중치 계산
             book_scores = defaultdict(float)
@@ -73,7 +75,8 @@ def hybrid_recommendation(db: Session, top_n: int = 30) -> None:
                 if book not in book_scores:
                     book_scores[book] += cs_score * cs_weight
 
-            # 상위 N개 추천 추출
+                
+            # 추천 점수를 기준으로 정렬하고 상위 N개 추천
             top_books = sorted(book_scores.items(), key=lambda x: x[1], reverse=True)[:top_n]
             hybrid_recommendations[user] = [book for book, score in top_books]
 
@@ -94,9 +97,10 @@ def hybrid_recommendation(db: Session, top_n: int = 30) -> None:
                 for book in recommended_books
             ]
             print(f"User {user}에게 추천된 책: {recommended_titles}")
-
-        elapsed_time = time.time() - start_time
+        end_time = time.time()  # 종료 시간 기록
+        elapsed_time = end_time - start_time  # 경과 시간 계산
         print(f"추천 생성에 걸린 시간: {elapsed_time:.2f} 초")
+    
     except Exception as e:
         print(f"추천 시스템 실행 중 오류가 발생했습니다: {e}")
         print(f"오류의 타입: {type(e).__name__}")  # 예외의 타입 출력
