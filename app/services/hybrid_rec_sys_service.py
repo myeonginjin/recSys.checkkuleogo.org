@@ -1,4 +1,3 @@
-from collections import defaultdict
 import time
 from collections import defaultdict
 from requests import Session
