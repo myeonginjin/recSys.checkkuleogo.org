@@ -1,17 +1,17 @@
 -- 각 테이블 데이터만 싹 지워주기 (테이블은 삭제 안함)
 SET FOREIGN_KEY_CHECKS = 0; -- 외래 키 제약 비활성화
-TRUNCATE TABLE book;  -- 테이블 데이터 비우기
+TRUNCATE TABLE book_like;  -- 테이블 데이터 비우기
 TRUNCATE TABLE book_mbti;
+TRUNCATE TABLE book;
 TRUNCATE TABLE child;
 TRUNCATE TABLE child_mbti;
 TRUNCATE TABLE user;
-TRUNCATE TABLE recommend;
 SET FOREIGN_KEY_CHECKS = 1; -- 외래 키 제약 다시 활성화
 
 
 -- 유저 만명 더미 데이터 형성 프로시저
 DELIMITER //
-CREATE PROCEDURE InsertUserDummyData()
+CREATE PROCEDURE InsertUserDummyData1()
 BEGIN
     DECLARE i INT DEFAULT 1;
     WHILE i <= 10000 DO
@@ -31,7 +31,7 @@ DELIMITER ;
 
 -- 책 mbti 더미데이터 생성 프로시저 
 DELIMITER //
-CREATE PROCEDURE InsertBookMBTIDummyData()
+CREATE PROCEDURE InsertBookMBTIDummyData1()
 BEGIN
     DECLARE i INT DEFAULT 1;
     WHILE i <= 10000 DO
@@ -45,7 +45,7 @@ DELIMITER ;
 
 -- 책 만개 더미 데이터 형성 프로시저
 DELIMITER //
-CREATE PROCEDURE InsertBookDummyData()
+CREATE PROCEDURE InsertBookDummyData1()
 BEGIN
     DECLARE i INT DEFAULT 1;
     WHILE i <= 10000 DO
@@ -63,7 +63,7 @@ DELIMITER ;
 
 -- 아이 MBTI 더미데이터 형성 프로시저 
 DELIMITER //
-CREATE PROCEDURE InsertChildMBTIDummyData()
+CREATE PROCEDURE InsertChildMBTIDummyData1()
 BEGIN
     DECLARE i INT DEFAULT 1;
     WHILE i <= 10000 DO
@@ -77,17 +77,18 @@ DELIMITER ;
 
 -- 아이 만명 더미 데이터 형성 프로시저 
 DELIMITER //
-CREATE PROCEDURE InsertChildDummyData()
+CREATE PROCEDURE InsertChildDummyData2()
 BEGIN
     DECLARE i INT DEFAULT 1;
     WHILE i <= 10000 DO
-        INSERT INTO child (child_name, child_age, child_birth, child_gender, child_mbti, parent_id)
+        INSERT INTO child (child_name, child_age, child_birth, child_gender, child_mbti, parent_id, is_active)
         VALUES (CONCAT('Child', i), 
                 FLOOR(RAND() * 10) + 5, 
                 DATE_ADD('2010-01-01', INTERVAL FLOOR(RAND() * 3650) DAY), 
                 IF(MOD(i, 2) = 0, 'Male', 'Female'), 
                 CONCAT('MBTI', FLOOR(RAND() * 16) + 1), 
-                i);
+                i,
+                IF(i <= 5000, TRUE, FALSE)); -- Set is_activate to TRUE for the first 5000, and FALSE for the rest
         SET i = i + 1;
     END WHILE;
 END //
@@ -95,30 +96,31 @@ DELIMITER ;
 
 -- 좋아요 기록 5천개 더미 데이터 형성 프로시저
 DELIMITER //
-CREATE PROCEDURE InsertBookLikeDummyData()
+CREATE PROCEDURE InsertBookLikeDummyData1()
 BEGIN
     DECLARE i INT DEFAULT 1;
-    WHILE i <= 5000 DO
-        INSERT INTO `kkul`.`book_like` 
+    WHILE i <= 8000 DO
+        INSERT INTO `kkuleogi`.`book_like` 
         (`created_at`, `updated_at`, `is_like`, `book_idx`, `child_idx`)
         VALUES 
         (NOW(), NOW(), 
         IF(RAND() > 0.5, 1, 0),               -- is_like를 1 또는 0으로 랜덤 지정
          FLOOR(RAND() * 10000) + 1,            -- book_idx는 1부터 10000까지 랜덤
-         FLOOR(RAND() * 10000) + 1);           -- child_idx는 1부터 10000까지 랜덤
+         FLOOR(RAND() * 10000) + 1);           -- child_idx는 1부터 10000까지 랜덤 (사용자 ID)
         SET i = i + 1;
     END WHILE;
 END //
 DELIMITER ;
 
 
+
 -- 각 프로시저 실행, 유저 만명 아이 만명 책 만개
-CALL InsertUserDummyData();
-CALL InsertBookMBTIDummyData();
-CALL InsertBookDummyData();
-CALL InsertChildMBTIDummyData();
-CALL InsertChildDummyData();
-CALL InsertBookLikeDummyData();
+CALL InsertUserDummyData1();
+CALL InsertBookMBTIDummyData1();
+CALL InsertBookDummyData1();
+CALL InsertChildMBTIDummyData1();
+CALL InsertChildDummyData2();
+CALL InsertBookLikeDummyData1();
 
 
 

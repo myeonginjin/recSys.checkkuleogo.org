@@ -1,7 +1,7 @@
 from sqlalchemy import Column, TEXT, BIGINT, TIMESTAMP, DOUBLE
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey,BOOLEAN
 from sqlalchemy.orm import relationship
 
 Base = declarative_base()
@@ -67,7 +67,7 @@ class Child(Base):
     child_mbti = Column(TEXT, nullable=True)
     childMBTI = relationship("ChildMBTI", uselist=False, back_populates="child")
     parent_id = Column(BIGINT, nullable=False)
-
+    is_active = Column(BOOLEAN,nullable=False )
     created_at = Column(TIMESTAMP, server_default=func.now(), nullable=False)
     updated_at = Column(
         TIMESTAMP, server_default=func.now(), onupdate=func.now(), nullable=False
