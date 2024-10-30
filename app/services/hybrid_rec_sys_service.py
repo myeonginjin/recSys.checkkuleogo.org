@@ -68,7 +68,7 @@ def hybrid_recommendation(db: Session, top_n: int = 30) -> None:
             db
         )  # {user_id: [(book_id, cs_score), ...]}
 
-        hybrid_recommendations = {}
+        hybrid_recommendations = {}  #하이브리드를 통해 추출한 최종 추천 목록
 
         # 모든 사용자 ID 가져오기
         all_users = set(recommendations_1.keys()).union(set(recommendations_2.keys()))
