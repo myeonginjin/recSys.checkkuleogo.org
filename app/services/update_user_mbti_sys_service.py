@@ -1,4 +1,5 @@
 import numpy as np
+from sqlalchemy.orm import Session
 from sklearn.metrics.pairwise import cosine_similarity
 
 

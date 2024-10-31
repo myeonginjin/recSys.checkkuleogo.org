@@ -1,7 +1,7 @@
 import time
 from collections import defaultdict
 from requests import Session
-from checkkuleogi.app.services.update_user_mbti_sys_service import (
+from services.update_user_mbti_sys_service import (
     update_user_mbti_with_vector,
 )
 from models.schemas import Book, Recommend, BookLike, Child
