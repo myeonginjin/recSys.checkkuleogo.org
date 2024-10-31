@@ -1,6 +1,9 @@
 import time
 from collections import defaultdict
 from requests import Session
+from checkkuleogi.app.services.update_user_mbti_sys_service import (
+    update_user_mbti_with_vector,
+)
 from models.schemas import Book, Recommend, BookLike, Child
 from services.cf_rec_sys_service import cf_recommendation
 from services.cs_rec_sys_service import cs_recommendation
@@ -47,7 +50,9 @@ def get_total_user_count(db: Session) -> int:
     시스템의 전체 사용자 수를 가져오는 함수
     """
     try:
-        user_count = db.query(Child).filter(Child.is_active == True).count() # 활성 사용자만 대상으로 함
+        user_count = (
+            db.query(Child).filter(Child.is_active == True).count()
+        )  # 활성 사용자만 대상으로 함
         return user_count
     except Exception as e:
         print(f"전체 사용자 수를 가져오는 중 오류 발생: {e}")
@@ -68,7 +73,7 @@ def hybrid_recommendation(db: Session, top_n: int = 30) -> None:
             db
         )  # {user_id: [(book_id, cs_score), ...]}
 
-        hybrid_recommendations = {}  #하이브리드를 통해 추출한 최종 추천 목록
+        hybrid_recommendations = {}  # 하이브리드를 통해 추출한 최종 추천 목록
 
         # 모든 사용자 ID 가져오기
         all_users = set(recommendations_1.keys()).union(set(recommendations_2.keys()))
@@ -117,6 +122,8 @@ def hybrid_recommendation(db: Session, top_n: int = 30) -> None:
 
         db.bulk_save_objects(recommend_entries)
         db.commit()
+
+        update_user_mbti_with_vector(db, hybrid_recommendations)
 
         # 각 사용자에게 추천된 책 출력
         for user, recommended_books in hybrid_recommendations.items():
