@@ -58,7 +58,6 @@ def update_user_mbti_with_likes(db: Session, hybrid_recommendations: dict) -> No
                 # 기존 MBTI와 새 MBTI 로그 출력
                 old_mbti = (child_mbti.mbti_e, child_mbti.mbti_s, child_mbti.mbti_t, child_mbti.mbti_j)
                 new_mbti = tuple(avg_mbti_vector)
-                print(f"사용자 ID {user_id}: 기존 MBTI {old_mbti} -> 새 MBTI {new_mbti}")
                 
                 # 업데이트 데이터 추가
                 child_mbti.mbti_e, child_mbti.mbti_s, child_mbti.mbti_t, child_mbti.mbti_j = avg_mbti_vector
@@ -73,7 +72,6 @@ def update_user_mbti_with_likes(db: Session, hybrid_recommendations: dict) -> No
                     mbti_j=avg_mbti_vector[3],
                 )
                 db.add(new_child_mbti)
-                print(f"사용자 ID {user_id}: 기존 MBTI 없음 -> 새 MBTI {avg_mbti_vector}")
 
             # ChildMBTILog에 로그 추가
             new_child_mbti_log = ChildMBTILog(
@@ -92,8 +90,8 @@ def update_user_mbti_with_likes(db: Session, hybrid_recommendations: dict) -> No
         if new_log_data:
             db.bulk_save_objects(new_log_data)
         db.commit()
-        print("사용자의 MBTI 정보가 성공적으로 업데이트되었습니다.")
+
     except Exception as e:
         db.rollback()
-        print(f"사용자 MBTI 업데이트 중 오류 발생: {e}")
+        print(f"UD : 사용자 MBTI 업데이트 중 오류 발생: {e}")
         print(f"오류의 타입: {type(e).__name__}")
