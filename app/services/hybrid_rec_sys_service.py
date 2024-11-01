@@ -2,7 +2,7 @@ import time
 from collections import defaultdict
 from requests import Session
 from services.update_user_mbti_sys_service import (
-    update_user_mbti_with_vector,
+    update_user_mbti_with_likes,
 )
 from models.schemas import Book, Recommend, BookLike, Child
 from services.cf_rec_sys_service import cf_recommendation
@@ -123,7 +123,7 @@ def hybrid_recommendation(db: Session, top_n: int = 30) -> None:
         db.bulk_save_objects(recommend_entries)
         db.commit()
 
-        update_user_mbti_with_vector(db, hybrid_recommendations)
+        update_user_mbti_with_likes(db, hybrid_recommendations)
 
         # 각 사용자에게 추천된 책 출력
         # for user, recommended_books in hybrid_recommendations.items():
