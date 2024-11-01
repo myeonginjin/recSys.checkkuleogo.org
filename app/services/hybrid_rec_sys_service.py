@@ -1,6 +1,7 @@
 import time
 from collections import defaultdict
 from requests import Session
+from sqlalchemy import delete
 from services.update_user_mbti_sys_service import (
     update_user_mbti_with_likes,
 )
@@ -109,6 +110,9 @@ def hybrid_recommendation(db: Session, top_n: int = 30) -> None:
                 :top_n
             ]
             hybrid_recommendations[user] = [book for book, score in top_books]
+
+        # 기존 추천 데이터 삭제 및 새로운 추천 데이터 벌크 삽입 (트랜잭션 내에서 수행)
+        db.execute(delete(Recommend))  # 전체 추천 데이터를 삭제
 
         # 추천 결과를 데이터베이스에 저장
         recommend_entries = [
