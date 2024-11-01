@@ -100,3 +100,17 @@ class Recommend(Base):
     child_idx = Column(
         BIGINT, ForeignKey("child.child_idx"), nullable=False
     )  # ForeignKey 추가
+
+
+class ChildMBTILog(Base):
+    __tablename__ = "child_mbti_log"
+
+    child_mbti_log_idx = Column(BIGINT, primary_key=True, autoincrement=True)
+    child_idx = Column(BIGINT, nullable=False)
+    mbti_e = Column(Integer)
+    mbti_s = Column(Integer)
+    mbti_t = Column(Integer)
+    mbti_j = Column(Integer)
+    is_survey_result = Column(BOOLEAN, nullable=False)
+    created_at = Column(TIMESTAMP, server_default=func.now(), nullable=False)
+    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now(), nullable=False)
