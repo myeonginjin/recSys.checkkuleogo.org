@@ -126,12 +126,12 @@ def hybrid_recommendation(db: Session, top_n: int = 30) -> None:
         update_user_mbti_with_vector(db, hybrid_recommendations)
 
         # 각 사용자에게 추천된 책 출력
-        for user, recommended_books in hybrid_recommendations.items():
-            recommended_titles = [
-                book.book_title if isinstance(book, Book) else str(book)
-                for book in recommended_books
-            ]
-            print(f"User {user}에게 추천된 책: {recommended_titles}")
+        # for user, recommended_books in hybrid_recommendations.items():
+        #     recommended_titles = [
+        #         book.book_title if isinstance(book, Book) else str(book)
+        #         for book in recommended_books
+        #     ]
+        #     print(f"User {user}에게 추천된 책: {recommended_titles}")
         end_time = time.time()  # 종료 시간 기록
         elapsed_time = end_time - start_time  # 경과 시간 계산
         print(f"추천 생성에 걸린 시간: {elapsed_time:.2f} 초")

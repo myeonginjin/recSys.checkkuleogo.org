@@ -39,12 +39,13 @@ CREATE PROCEDURE InsertBookMBTIDummyData()
 BEGIN
     DECLARE i INT DEFAULT 1;
     WHILE i <= 10000 DO
-        INSERT INTO book_mbti (mbti_e, mbti_s, mbti_t, mbti_j)
-        VALUES (FLOOR(RAND() * 100), FLOOR(RAND() * 100), FLOOR(RAND() * 100), FLOOR(RAND() * 100));
+        INSERT INTO book_mbti (book_idx, mbti_e, mbti_s, mbti_t, mbti_j)
+        VALUES (i, FLOOR(RAND() * 100), FLOOR(RAND() * 100), FLOOR(RAND() * 100), FLOOR(RAND() * 100));
         SET i = i + 1;
     END WHILE;
 END //
 DELIMITER ;
+
 
 -- 책 만개 더미 데이터 형성 프로시저
 DELIMITER //
