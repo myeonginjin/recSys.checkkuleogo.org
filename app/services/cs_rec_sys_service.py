@@ -10,8 +10,7 @@ def calculate_cosine_similarity_matrix(child_matrix, book_matrix):
     """모든 아이와 책의 코사인 유사도를 매트릭스로 계산하는 함수"""
     book_norms = np.linalg.norm(book_matrix, axis=1)
     child_norms = np.linalg.norm(child_matrix, axis=1)
-
-    # (child * book.T) / (child_norms * book_norms.T)
+    
     similarity_matrix = np.dot(child_matrix, book_matrix.T) / np.outer(
         child_norms, book_norms
     )

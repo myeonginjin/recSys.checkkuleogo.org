@@ -78,21 +78,6 @@ def generate_recommendations( #머신러닝
                     ] -= sim_scores[similar_user] #싫어요 패턴일 시 점수를 차감. 싫어요가 많을 시 오히려 추천받지 않아야할 책. 
 
     # 각 사용자의 책 추천 목록 생성, 여기서 휴면 유저는 추천에서 제외. 이곳에서 해주는 이유는 그 사람의 행동패턴은 머신러닝에 학습 데이터로 활용되어야 함
-
-    '''
-    user_item_matrix 생성 단계에서 필터링: 휴면 유저를 user_item_matrix에 포함하지 않으면 데이터셋 자체에서 제외되므로 
-    유사도 계산 및 모델 학습 시 휴면 유저의 데이터가 반영되지 않음.
-    학습을 위해 휴면 유저의 행동 패턴을 남겨두고자 하므로, 이 단계에서 제외하는 것은 적합하지 않다.
-
-    calculate_cosine_similarity 함수에서 필터링: 이 단계에서 필터링을 하게 되면 유사도 계산 결과가 일부 유저에게 제한되며, 
-    휴면 유저를 포함한 유사도 학습에 부적합.
-    마찬가지로, 유사도를 계산한 후에 휴면 유저에게 추천 결과만을 필터링하는 방법이 적합합니다.
-
-    따라서, generate_recommendations 내에서 휴면 유저를 필터링하는 것이 최선의 선택입니다. 
-    구현 시에는 is_active 여부를 확인하기 위해 cf_recommendation에서 Child 테이블을 추가로 조회하고, 
-    휴면 유저 리스트를 만들어 generate_recommendations 함수에서 참고
-    '''
-
     for user_id in user_item_matrix.index:
         if user_id not in active_users:  # 휴면 유저는 추천에서 제외
             continue
@@ -137,9 +122,8 @@ def cf_recommendation(db: Session) -> None:
         recommendations = generate_recommendations(
             user_item_matrix, user_similarities_df, active_users    #user_similarities_df를 통해 피추천인과 유사한 사람을 찾고, user_item_matrix에서 그 사람의 좋아요 항목을 찾는다.
         )
-
         return recommendations
     except Exception as e:
-        print(f"추천 시스템 실행 중 오류가 발생했습니다: {e}")
+        print(f"CF : 추천 시스템 실행 중 오류가 발생했습니다: {e}")
         print(f"오류의 타입: {type(e).__name__}")  # 예외의 타입 출력
         return {}

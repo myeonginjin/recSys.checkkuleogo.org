@@ -41,7 +41,7 @@ def get_user_likes(db: Session, user_id: int) -> int:
         )
         return like_count
     except Exception as e:
-        print(f"좋아요 수를 가져오는 중 오류 발생: {e}")
+        print(f"HB : 좋아요 수를 가져오는 중 오류 발생: {e}")
         return 0
 
 
@@ -55,7 +55,7 @@ def get_total_user_count(db: Session) -> int:
         )  # 활성 사용자만 대상으로 함
         return user_count
     except Exception as e:
-        print(f"전체 사용자 수를 가져오는 중 오류 발생: {e}")
+        print(f"HB : 전체 사용자 수를 가져오는 중 오류 발생: {e}")
         return 0
 
 
@@ -119,25 +119,16 @@ def hybrid_recommendation(db: Session, top_n: int = 30) -> None:
             for user, books in hybrid_recommendations.items()
             for book in books
         ]
-
         db.bulk_save_objects(recommend_entries)
         db.commit()
 
         update_user_mbti_with_likes(db, hybrid_recommendations)
-
-        # 각 사용자에게 추천된 책 출력
-        # for user, recommended_books in hybrid_recommendations.items():
-        #     recommended_titles = [
-        #         book.book_title if isinstance(book, Book) else str(book)
-        #         for book in recommended_books
-        #     ]
-        #     print(f"User {user}에게 추천된 책: {recommended_titles}")
         end_time = time.time()  # 종료 시간 기록
         elapsed_time = end_time - start_time  # 경과 시간 계산
-        print(f"추천 생성에 걸린 시간: {elapsed_time:.2f} 초")
+        print(f"HB : 추천 생성에 걸린 시간: {elapsed_time:.2f} 초")
 
     except Exception as e:
-        print(f"추천 시스템 실행 중 오류가 발생했습니다: {e}")
+        print(f"HB : 추천 시스템 실행 중 오류가 발생했습니다: {e}")
         print(f"오류의 타입: {type(e).__name__}")  # 예외의 타입 출력
     finally:
         db.close()  # DB 세션 종료
